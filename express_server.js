@@ -7,14 +7,20 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 const bodyParser = require("body-parser");
-function generateRandomString() {
-
+const generateRandomString = (length) => {
+  let randomLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for ( var i = 0; i < length; i++ ) {
+      result += randomLetters.charAt(Math.floor(Math.random() * randomLetters.length));
+  }
+  return result;  
 }
-
 app.use(bodyParser.urlencoded({extended: true}));
+
 app.post("/urls", (req, res) => {
-  console.log(req.body);  // Log the POST request body to the console
-  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+  const shortURL = generateRandomString(6);
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
 });
 
 app.get("/", (req, res) => {
@@ -33,6 +39,10 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }
   res.render("urls_show", templateVars);
+});
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL]
+  res.redirect(longURL);
 });
 
 app.get("/hello", (req, res) => {
