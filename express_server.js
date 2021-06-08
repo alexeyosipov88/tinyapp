@@ -42,7 +42,7 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 app.post("/urls/:id", (req, res) => {
-  const shortURL = generateRandomString(6);
+  const shortURL = req.params.id;
   urlDatabase[shortURL] = req.body.id;
   res.redirect(`/urls`);
 });
