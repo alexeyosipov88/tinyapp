@@ -10,7 +10,7 @@ const bodyParser = require("body-parser");
 const generateRandomString = (length) => {
   let randomLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
-  for ( var i = 0; i < length; i++ ) {
+  for ( let i = 0; i < length; i++ ) {
       result += randomLetters.charAt(Math.floor(Math.random() * randomLetters.length));
   }
   return result;  
@@ -22,6 +22,11 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
 });
+app.post("/urls/:shortURL/delete", (req, res) => {
+  
+  res.redirect(`/urls/${shortURL}`);
+});
+
 
 app.get("/", (req, res) => {
   res.send("Hello!");
