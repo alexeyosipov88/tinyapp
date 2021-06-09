@@ -8,6 +8,18 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 const bodyParser = require("body-parser");
 const generateRandomString = (length) => {
   let randomLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -49,6 +61,14 @@ app.get("/urls/new", (req, res) => {
     username: req.cookies["username"]
   }
   res.render("urls_new", templateVars);
+});
+app.get("/register", (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL],
+    username: req.cookies["username"]
+  }
+  res.render("urls_register", templateVars);
 });
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
