@@ -64,12 +64,21 @@ app.get("/urls/new", (req, res) => {
 });
 app.get("/register", (req, res) => {
   const templateVars = {
-    shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL],
     username: req.cookies["username"]
   }
   res.render("urls_register", templateVars);
 });
+app.post("/register", (req, res) => {
+  const id = generateRandomString(5);
+  const email = req.body.email;
+  const password = req.body.password;
+  const user = { id, email, password };
+  users[id] = user;
+  res.cookie("user_id", id);
+  console.log(users);
+  res.redirect("/urls");
+});
+
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL, 
