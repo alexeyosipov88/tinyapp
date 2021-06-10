@@ -1,12 +1,16 @@
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
-const PORT = 8080; // default port 8080
+const PORT = 8080  // default port 8080
 app.set("view engine", "ejs");
 app.use(cookieParser())
-const urlDatabase = {
+/* const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+}; */
+const urlDatabase = {
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 const users = { 
   "userRandomID": {
@@ -42,7 +46,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(6);
-  urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = {longURL: req.body.longURL, userID: shortURL};
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -58,6 +62,9 @@ app.post("/login", (req, res) => {
   res.cookie("user_id", emailAlreadyExists(email));
   res.redirect(`/urls`);
 });
+
+
+
 app.get("/login", (req, res) => {
   const templateVars = {
     user_id: req.cookies["user_id"],
@@ -137,7 +144,7 @@ app.post("/logout", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
     shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user_id: req.cookies["user_id"],
     user: users[req.cookies["user_id"]]
   }
