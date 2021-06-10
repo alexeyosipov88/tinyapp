@@ -24,7 +24,7 @@ const emailAlreadyExists = (email) => {
   let keys = Object.keys(users);
   for (key of keys) {
     if (email === users[key].email) {
-      return true
+      return key;
     }
   }
   return false;
@@ -47,6 +47,15 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+  if (!emailAlreadyExists(email)) {
+    res.status(403).send("User with this email is not found");
+  };
+  if (users[emailAlreadyExists(email)].password !== password) {
+    res.status(403).send("Login and password don't match");
+  }
+
   res.cookie("username", req.body.username);
   res.redirect(`/urls`);
 });
