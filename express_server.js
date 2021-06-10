@@ -20,6 +20,15 @@ const users = {
     password: "dishwasher-funk"
   }
 }
+const emailAlreadyExists = (email) => {
+  let keys = Object.keys(users);
+  for (key of keys) {
+    if (email === users[key].email) {
+      return true
+    }
+  }
+  return false;
+}
 const bodyParser = require("body-parser");
 const generateRandomString = (length) => {
   let randomLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -75,10 +84,16 @@ app.post("/register", (req, res) => {
   const id = generateRandomString(5);
   const email = req.body.email;
   const password = req.body.password;
+  console.log(emailAlreadyExists(email))
+  if (email === "" || password === "") {
+    res.status(400).send("email or passwor is an empty string")
+  };
+  if (emailAlreadyExists(email) === true) {
+    res.status(400).send("User with the same email already exists")
+  }
   const user = { id, email, password };
   users[id] = user;
   res.cookie("user_id", id);
-  console.log(users);
   res.redirect("/urls");
 });
 
