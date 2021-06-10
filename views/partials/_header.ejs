@@ -11,11 +11,6 @@
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
     </div>
-  <!--   <% if (user_id) {%>
-      <h3>
-        Logged in as: <%= user.email %>    &nbsp 
-      </h3>
-      <%}%> -->
             <% if (user_id) {%>
               <form class="form-inline" action="/logout" method="POST">
                 <input name="user_id"  type = "hidden">
