@@ -55,8 +55,7 @@ app.post("/login", (req, res) => {
   if (users[emailAlreadyExists(email)].password !== password) {
     res.status(403).send("Login and password don't match");
   }
-
-  res.cookie("username", req.body.username);
+  res.cookie("user_id", emailAlreadyExists(email));
   res.redirect(`/urls`);
 });
 app.get("/login", (req, res) => {
