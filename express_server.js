@@ -50,6 +50,13 @@ app.post("/login", (req, res) => {
   res.cookie("username", req.body.username);
   res.redirect(`/urls`);
 });
+app.get("/login", (req, res) => {
+  const templateVars = {
+    user_id: req.cookies["user_id"],
+    user: users[req.cookies["user_id"]]
+  }
+  res.render("urls_login", templateVars);
+});
 
 app.get("/", (req, res) => {
   res.send("Hello!");
@@ -97,15 +104,7 @@ app.post("/register", (req, res) => {
   res.redirect("/urls");
 });
 
-app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = {
-    shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL],
-    user_id: req.cookies["username"],
-    user: users[req.cookies["user_id"]]
-  }
-  res.render("urls_show", templateVars);
-});
+
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   urlDatabase[shortURL] = req.body.id;
@@ -125,7 +124,15 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-
+app.get("/urls/:shortURL", (req, res) => {
+  const templateVars = {
+    shortURL: req.params.shortURL, 
+    longURL: urlDatabase[req.params.shortURL],
+    user_id: req.cookies["user_id"],
+    user: users[req.cookies["user_id"]]
+  }
+  res.render("urls_show", templateVars);
+});
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
