@@ -4,6 +4,8 @@ const cookieParser = require('cookie-parser');
 const PORT = 8080  // default port 8080
 app.set("view engine", "ejs");
 app.use(cookieParser())
+const bcrypt = require('bcrypt');
+
 /* const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -65,7 +67,7 @@ app.post("/login", (req, res) => {
   if (!emailAlreadyExists(email)) {
     res.status(403).send("User with this email is not found");
   };
-  if (users[emailAlreadyExists(email)].password !== password) {
+  if (!bcrypt.compareSync(password, users[emailAlreadyExists(email)].password)) {
     res.status(403).send("Login and password don't match");
   }
   res.cookie("user_id", emailAlreadyExists(email));
@@ -118,7 +120,7 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
   const id = generateRandomString(5);
   const email = req.body.email;
-  const password = req.body.password;
+  const password = bcrypt.hashSync(req.body.password, 10);
   if (email === "" || password === "") {
     res.status(400).send("email or passwor is an empty string")
   };
