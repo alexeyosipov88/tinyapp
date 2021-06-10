@@ -99,11 +99,10 @@ app.post("/register", (req, res) => {
   const id = generateRandomString(5);
   const email = req.body.email;
   const password = req.body.password;
-  console.log(emailAlreadyExists(email))
   if (email === "" || password === "") {
     res.status(400).send("email or passwor is an empty string")
   };
-  if (emailAlreadyExists(email) === true) {
+  if (emailAlreadyExists(email)) {
     res.status(400).send("User with the same email already exists")
   }
   const user = { id, email, password };
