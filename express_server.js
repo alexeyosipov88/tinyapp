@@ -12,18 +12,15 @@ const { urlsForUser, makeProperLongUrl, getUserByEmail, generateRandomString } =
 
 
 const bcrypt = require('bcrypt');
+
 const bodyParser = require("body-parser");
-
-
-
-
-
 
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
+
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -40,12 +37,31 @@ const users = {
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// get request handler for getting urlDB in json format
+
+app.get("/urls.json", (req, res) => {
+  res.json(urlDatabase);
+});
+
+// sends hello for the user to check get request handler. it all started from here
+
+app.get("/", (req, res) => {
+  if (!req.session["user_id"]) {
+    res.redirect("/login")
+  };
+  res.redirect("/urls")
+});
+
+// post request handler for creating short url
+
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(6);
   const longURL = makeProperLongUrl(req.body.longURL);
   urlDatabase[shortURL] = { longURL: longURL, userID: req.session.user_id };
   res.redirect(`/urls/${shortURL}`);
 });
+
+// post request handler for signing in 
 
 app.post("/login", (req, res) => {
   const email = req.body.email;
@@ -60,7 +76,7 @@ app.post("/login", (req, res) => {
   res.redirect(`/urls`);
 });
 
-
+// get request handler for login page
 
 app.get("/login", (req, res) => {
   const templateVars = {
@@ -70,14 +86,13 @@ app.get("/login", (req, res) => {
   res.render("urls_login", templateVars);
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
+
+// get request handler, shows the list of urls created by the user
 
 app.get("/urls", (req, res) => {
+  if (!req.session["user_id"]) {
+    res.redirect("/login")
+  };
   let newUrls = urlsForUser(req.session["user_id"], urlDatabase);
   const templateVars = {
     urls: newUrls,
@@ -86,6 +101,9 @@ app.get("/urls", (req, res) => {
   }
   res.render("urls_index", templateVars);
 });
+
+// get request handler for showing a page for creating short url
+
 app.get("/urls/new", (req, res) => {
   if (!req.session["user_id"]) {
     res.redirect("/login")
@@ -98,6 +116,7 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+// get request handler for registering new users
 
 app.get("/register", (req, res) => {
   const templateVars = {
@@ -107,43 +126,58 @@ app.get("/register", (req, res) => {
   res.render("urls_register", templateVars);
 });
 
+// post request handler for creating new account
 
 app.post("/register", (req, res) => {
   const id = generateRandomString(5);
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
   if (email === "" || password === "") {
-    res.status(400).send("email or passwor is an empty string")
+    res.status(400).send("email or password is an empty string")
   };
   if (getUserByEmail(email, users)) {
     res.status(400).send("User with the same email already exists")
   }
   const user = { id, email, password };
   users[id] = user;
-  req.session["user_id"] =  id;
+  req.session["user_id"] = id;
   res.redirect("/urls");
 });
 
+// post request handler for editing URL
 
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
   const longURL = makeProperLongUrl(req.body.id);
-  urlDatabase[shortURL] = {longURL: longURL, userID: req.session.user_id};
+  urlDatabase[shortURL] = { longURL: longURL, userID: req.session.user_id };
   res.redirect(`/urls`);
 });
+
+// post request handler for deleting URL
+
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
 
+// get request handler for clicking on the shortURL link (redirects to the real website)
+
 app.get("/u/:shortURL", (req, res) => {
+  if (!urlDatabase[req.params.shortURL]) {
+    res.send("The short URL doesn't exist")
+  };
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
 });
+
+// post request handler for logout
+
 app.post("/logout", (req, res) => {
   req.session['user_id'] = null;
   res.redirect("/urls");
 });
+
+// get request handler for short url
 
 app.get("/urls/:shortURL", (req, res) => {
   const templateVars = {
@@ -155,9 +189,6 @@ app.get("/urls/:shortURL", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
