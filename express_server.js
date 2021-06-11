@@ -158,7 +158,8 @@ app.post("/register", (req, res) => {
 
 app.post("/urls/:id", (req, res) => {
   const shortURL = req.params.id;
-  urlDatabase[shortURL] = {longURL: req.body.id, userID: req.session.user_id};
+  const longURL = makeProperLongUrl(req.body.id);
+  urlDatabase[shortURL] = {longURL: longURL, userID: req.session.user_id};
   res.redirect(`/urls`);
 });
 app.post("/urls/:shortURL/delete", (req, res) => {
