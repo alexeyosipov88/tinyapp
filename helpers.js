@@ -1,3 +1,20 @@
+const urlsForUser = (id, database) => {
+  let result = {}
+  for (let key in database) {
+    if (database[key].userID === id) {
+       result[key] = database[key];
+    }
+  }
+  return result;
+}
+
+const makeProperLongUrl = (url) => {
+  if (!url.includes("http://")) {
+    return `http://${url}`;
+  }
+  return url;
+}
+
 const getUserByEmail = (email, database) => {
   let keys = Object.keys(database);
   for (key of keys) {
@@ -7,6 +24,7 @@ const getUserByEmail = (email, database) => {
   }
   return false;
 }
+
 const generateRandomString = (length) => {
   let randomLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
@@ -18,5 +36,4 @@ const generateRandomString = (length) => {
 
 
 
-
-module.exports = {getUserByEmail, generateRandomString}
+module.exports = {urlsForUser, makeProperLongUrl, getUserByEmail, generateRandomString}

@@ -7,48 +7,17 @@ app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
-const urlsForUser = (id) => {
-  let result = {}
-  for (let key in urlDatabase) {
-    if (urlDatabase[key].userID === id) {
-       result[key] = urlDatabase[key];
-    }
-  }
-  return result;
-}
 
-const makeProperLongUrl = (url) => {
-  if (!url.includes("https://")) {
-    return `https://${url}`;
-  }
-  return url;
-}
+const { urlsForUser, makeProperLongUrl, getUserByEmail, generateRandomString } = require('./helpers');
 
-
-/* const urlsForUser = require('./helpers'); */
 
 const bcrypt = require('bcrypt');
 const bodyParser = require("body-parser");
 
 
 
-const getUserByEmail = (email, database) => {
-  let keys = Object.keys(database);
-  for (key of keys) {
-    if (email === database[key].email) {
-      return key;
-    }
-  }
-  return false;
-}
-const generateRandomString = (length) => {
-  let randomLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += randomLetters.charAt(Math.floor(Math.random() * randomLetters.length));
-  }
-  return result;
-}
+
+
 
 
 const urlDatabase = {
@@ -109,7 +78,7 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  let newUrls = urlsForUser(req.session["user_id"]);
+  let newUrls = urlsForUser(req.session["user_id"], urlDatabase);
   const templateVars = {
     urls: newUrls,
     user_id: req.session["user_id"],
@@ -193,5 +162,3 @@ app.get("/hello", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-console.log(users);
