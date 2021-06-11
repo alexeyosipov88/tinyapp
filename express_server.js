@@ -17,13 +17,40 @@ const urlsForUser = (id) => {
   return result;
 }
 
+const makeProperLongUrl = (url) => {
+  if (!url.includes("https://")) {
+    return `https://${url}`;
+  }
+  return url;
+}
 
 
 /* const urlsForUser = require('./helpers'); */
+
 const bcrypt = require('bcrypt');
 const bodyParser = require("body-parser");
-const getUserByEmail = require ('./helpers');
-const generateRandomString = require('./helpers');
+
+
+
+const getUserByEmail = (email, database) => {
+  let keys = Object.keys(database);
+  for (key of keys) {
+    if (email === database[key].email) {
+      return key;
+    }
+  }
+  return false;
+}
+const generateRandomString = (length) => {
+  let randomLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += randomLetters.charAt(Math.floor(Math.random() * randomLetters.length));
+  }
+  return result;
+}
+
+
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
@@ -46,7 +73,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString(6);
-  urlDatabase[shortURL] = { longURL: req.body.longURL, userID: req.session.user_id };
+  const longURL = makeProperLongUrl(req.body.longURL);
+  urlDatabase[shortURL] = { longURL: longURL, userID: req.session.user_id };
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -124,7 +152,6 @@ app.post("/register", (req, res) => {
   const user = { id, email, password };
   users[id] = user;
   req.session["user_id"] =  id;
-  req.session.user_id = "asfsadfsd";
   res.redirect("/urls");
 });
 
