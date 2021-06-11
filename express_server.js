@@ -7,8 +7,23 @@ app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
-const bcrypt = require('bcrypt');
+const urlsForUser = (id) => {
+  let result = {}
+  for (let key in urlDatabase) {
+    if (urlDatabase[key].userID === id) {
+       result[key] = urlDatabase[key];
+    }
+  }
+  return result;
+}
 
+
+
+/* const urlsForUser = require('./helpers'); */
+const bcrypt = require('bcrypt');
+const bodyParser = require("body-parser");
+const getUserByEmail = require ('./helpers');
+const generateRandomString = require('./helpers');
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
@@ -25,33 +40,8 @@ const users = {
     password: "dishwasher-funk"
   }
 }
-const urlsForUser = (id) => {
-  let result = {}
-  for (let key in urlDatabase) {
-    if (urlDatabase[key].userID === id) {
-       result[key] = urlDatabase[key];
-    }
-  }
-  return result;
-}
-const getUserByEmail = (email, database) => {
-  let keys = Object.keys(database);
-  for (key of keys) {
-    if (email === database[key].email) {
-      return key;
-    }
-  }
-  return false;
-}
-const bodyParser = require("body-parser");
-const generateRandomString = (length) => {
-  let randomLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += randomLetters.charAt(Math.floor(Math.random() * randomLetters.length));
-  }
-  return result;
-}
+
+
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post("/urls", (req, res) => {
