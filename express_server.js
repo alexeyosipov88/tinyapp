@@ -34,10 +34,10 @@ const urlsForUser = (id) => {
   }
   return result;
 }
-const emailAlreadyExists = (email) => {
-  let keys = Object.keys(users);
+const getUserByEmail = (email, database) => {
+  let keys = Object.keys(database);
   for (key of keys) {
-    if (email === users[key].email) {
+    if (email === database[key].email) {
       return key;
     }
   }
@@ -63,13 +63,13 @@ app.post("/urls", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  if (!emailAlreadyExists(email)) {
+  if (!getUserByEmail(email, users)) {
     res.status(403).send("User with this email is not found");
   };
-  if (!bcrypt.compareSync(password, users[emailAlreadyExists(email)].password)) {
+  if (!bcrypt.compareSync(password, users[getUserByEmail(email, users)].password)) {
     res.status(403).send("Login and password don't match");
   }
-  req.session["user_id"] = emailAlreadyExists(email);
+  req.session["user_id"] = getUserByEmail(email, users);
   res.redirect(`/urls`);
 });
 
@@ -128,7 +128,7 @@ app.post("/register", (req, res) => {
   if (email === "" || password === "") {
     res.status(400).send("email or passwor is an empty string")
   };
-  if (emailAlreadyExists(email)) {
+  if (getUserByEmail(email, users)) {
     res.status(400).send("User with the same email already exists")
   }
   const user = { id, email, password };
