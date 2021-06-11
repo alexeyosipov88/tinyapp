@@ -1,15 +1,15 @@
 
-// returns filtered database if the id parameter matches 
+// returns filtered database if the id parameter matches
 
 const urlsForUser = (id, database) => {
-  let result = {}
+  let result = {};
   for (let key in database) {
     if (database[key].userID === id) {
       result[key] = database[key];
     }
   }
   return result;
-}
+};
 
 // adds "http" to the submitted url
 
@@ -18,19 +18,19 @@ const makeProperLongUrl = (url) => {
     return `http://${url}`;
   }
   return url;
-}
+};
 
 // returns the user object if in a database by email, returns false if not
 
 const getUserByEmail = (email, database) => {
   let keys = Object.keys(database);
-  for (key of keys) {
+  for (let key of keys) {
     if (email === database[key].email) {
       return key;
     }
   }
   return false;
-}
+};
 
 // generates random string for userID and short url
 
@@ -41,7 +41,7 @@ const generateRandomString = (length) => {
     result += randomLetters.charAt(Math.floor(Math.random() * randomLetters.length));
   }
   return result;
-}
+};
 
 
-module.exports = { urlsForUser, makeProperLongUrl, getUserByEmail, generateRandomString }
+module.exports = { urlsForUser, makeProperLongUrl, getUserByEmail, generateRandomString };
