@@ -7,13 +7,14 @@ app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
 }));
+const bodyParser = require("body-parser");
 
 const { urlsForUser, makeProperLongUrl, getUserByEmail, generateRandomString } = require('./helpers');
 
 
 const bcrypt = require('bcrypt');
 
-const bodyParser = require("body-parser");
+
 
 
 const urlDatabase = {
@@ -34,8 +35,8 @@ const users = {
   }
 }
 
-
 app.use(bodyParser.urlencoded({ extended: true }));
+
 
 // get request handler for getting urlDB in json format
 
@@ -48,7 +49,8 @@ app.get("/urls.json", (req, res) => {
 app.get("/", (req, res) => {
   if (!req.session["user_id"]) {
     res.redirect("/login")
-  };
+    return;
+  }
   res.redirect("/urls")
 });
 
@@ -68,9 +70,11 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   if (!getUserByEmail(email, users)) {
     res.status(403).send("User with this email is not found");
+    return
   };
   if (!bcrypt.compareSync(password, users[getUserByEmail(email, users)].password)) {
     res.status(403).send("Login and password don't match");
+    return
   }
   req.session["user_id"] = getUserByEmail(email, users);
   res.redirect(`/urls`);
@@ -91,13 +95,14 @@ app.get("/login", (req, res) => {
 
 app.get("/urls", (req, res) => {
   if (!req.session["user_id"]) {
-    res.redirect("/login")
+    res.redirect("/login");
+    return;
   };
   let newUrls = urlsForUser(req.session["user_id"], urlDatabase);
   const templateVars = {
     urls: newUrls,
     user_id: req.session["user_id"],
-    user: users[req.session["user_id"]]
+    user: users[req.session["user_id"]],
   }
   res.render("urls_index", templateVars);
 });
@@ -106,7 +111,8 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   if (!req.session["user_id"]) {
-    res.redirect("/login")
+    res.redirect("/login");
+    return;
   }
   const templateVars = {
     urls: urlDatabase,
@@ -134,9 +140,11 @@ app.post("/register", (req, res) => {
   const password = bcrypt.hashSync(req.body.password, 10);
   if (email === "" || password === "") {
     res.status(400).send("email or password is an empty string")
+    return;
   };
   if (getUserByEmail(email, users)) {
-    res.status(400).send("User with the same email already exists")
+    res.status(400).send("User with the same email already exists");
+    return;
   }
   const user = { id, email, password };
   users[id] = user;
@@ -165,6 +173,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
     res.send("The short URL doesn't exist")
+    return;
   };
   const longURL = urlDatabase[req.params.shortURL].longURL;
   res.redirect(longURL);
