@@ -1,8 +1,14 @@
 const express = require("express");
 const app = express();
 const cookieSession = require('cookie-session');
+const methodOverride = require('method-override')
+
 const PORT = 8080;  // default port 8080
+
+app.use(methodOverride('_method'));
+
 app.set("view engine", "ejs");
+
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2']
@@ -94,7 +100,7 @@ app.get("/login", (req, res) => {
 // get request handler, shows the list of urls created by the user
 
 app.get("/urls", (req, res) => {
-  if (!req.session["user_id"]) {
+  if (!users[req.session["user_id"]]) {
     res.redirect("/login");
     return;
   }
@@ -163,7 +169,7 @@ app.post("/urls/:id", (req, res) => {
 
 // post request handler for deleting URL
 
-app.post("/urls/:shortURL/delete", (req, res) => {
+app.delete("/urls/:shortURL", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
